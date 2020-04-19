@@ -221,7 +221,10 @@ void DMA2_Stream0_IRQHandler(void)
   /* USER CODE END DMA2_Stream0_IRQn 0 */
   
   /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-  ADC1_DMA2_TransferComplete_Callback();
+  if( LL_DMA_IsActiveFlag_TC0(DMA2) == 1){
+	  LL_DMA_ClearFlag_TC0(DMA2);
+	  ADC1_DMA2_TransferComplete_Callback();
+  }
   /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
