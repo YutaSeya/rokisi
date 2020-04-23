@@ -18,9 +18,9 @@
  */
 void setFullColorLed(uint8_t light)
 {
-  uint8_t red = (~light & 0x01);
-  uint8_t green = (~light & 0x02) >> 1;
-  uint8_t blue = (~light & 0x04) >> 2;
+  uint8_t red = (light & 0x01);
+  uint8_t green = (light & 0x02) >> 1;
+  uint8_t blue = (light & 0x04) >> 2;
 
   if(red == 1) LL_GPIO_ResetOutputPin(fled_red_GPIO_Port, fled_red_Pin);
   else LL_GPIO_SetOutputPin(fled_red_GPIO_Port, fled_red_Pin);
@@ -43,10 +43,10 @@ void setFullColorLed(uint8_t light)
  */
 void setUILed(uint8_t light)
 {
-  uint8_t led1 = (~light & 0x01);
-  uint8_t led2 = (~light & 0x02) >> 1;
-  uint8_t led3 = (~light & 0x04) >> 2;
-  uint8_t led4 = (~light & 0x08) >> 3;
+  uint8_t led1 = (light & 0x01);
+  uint8_t led2 = (light & 0x02) >> 1;
+  uint8_t led3 = (light & 0x04) >> 2;
+  uint8_t led4 = (light & 0x08) >> 3;
 
   if(led1 == 1) LL_GPIO_ResetOutputPin(led1_GPIO_Port, led1_Pin);
   else LL_GPIO_SetOutputPin(led1_GPIO_Port, led1_Pin);
@@ -72,13 +72,13 @@ void setUILed(uint8_t light)
  */
 void setSideSensorUILed(uint8_t light)
 {
-  uint8_t left = (~light & 0x01);
-  uint8_t right = (~light & 0x02) >> 1; 
+  uint8_t left = (light & 0x01);
+  uint8_t right = (light & 0x02) >> 1; 
 
   if(left == 1) LL_GPIO_ResetOutputPin(led_left_GPIO_Port, led_left_Pin);
   else LL_GPIO_SetOutputPin(led_right_GPIO_Port, led_right_Pin);
 
-  if(right == 1) LL_GPIO_SetOutputPin(led_right_GPIO_Port, led_right_Pin);
+  if(right == 1) LL_GPIO_ResetOutputPin(led_right_GPIO_Port, led_right_Pin);
   else LL_GPIO_SetOutputPin(led_right_GPIO_Port, led_right_Pin);
 }
 
