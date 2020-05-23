@@ -50,11 +50,11 @@ void controlMotor(int32_t left, int32_t right)
 {
   if(left < 0){
     left = -1 * left;
-    LL_GPIO_SetOutputPin(bin1_GPIO_Port, bin1_Pin);
-    LL_GPIO_ResetOutputPin(bin2_GPIO_Port, bin2_Pin);
-  } else {
     LL_GPIO_ResetOutputPin(bin1_GPIO_Port, bin1_Pin);
     LL_GPIO_SetOutputPin(bin2_GPIO_Port, bin2_Pin);
+  } else {
+    LL_GPIO_SetOutputPin(bin1_GPIO_Port, bin1_Pin);
+    LL_GPIO_ResetOutputPin(bin2_GPIO_Port, bin2_Pin);
   }
 
   if(right < 0){

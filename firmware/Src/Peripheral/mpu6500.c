@@ -7,7 +7,8 @@
 
 #include "mpu6500.h"
 
-#if _USE_MPU6500
+/// number of calibration
+#define NUMBER_CALIBRATION 256
 
 /**
  * @enum MPU6500_DEF
@@ -50,6 +51,51 @@ float mpu6500_gyro_z_offset = 0.0f;
 float mpu6500_accel_x_offset = 0.0f;
 float mpu6500_accel_y_offset = 0.0f;
 
+
+/**
+ * @brief SPI3 Enable
+ * @details
+ *  enable SPI3 and set SPI3 IMU CS Pin high.
+ */
+void SPI3_Starat(void)
+{
+  LL_SPI_Enable(SPI3);
+  LL_GPIO_SetOutputPin(mpu_cs_GPIO_Port, mpu_cs_Pin);
+}
+
+/**
+ * @brief Performs SPI3 communication
+ * @param tx_data write data array 
+ * @param rx_data read data array 
+ * @param length communication length
+ * @param select L3GD20 or MPU6500
+ * @details 
+ *  Tx_data and rx_data arrays need the same size as length,
+ *  because SPI communication is full duplex communication.
+ *  select 0:L3GD20, 1:MPU6500
+ */
+void SPI3_Communication(uint8_t *tx_data, uint8_t *rx_data, uint8_t length)
+{
+  uint8_t count = length;
+
+  LL_GPIO_ResetOutputPin(mpu_cs_GPIO_Port, mpu_cs_Pin);
+  
+  if(LL_SPI_IsActiveFlag_RXNE(SPI3) == SET) LL_SPI_ReceiveData8(SPI3);
+
+  if(LL_SPI_IsEnabled(SPI3) == RESET) LL_SPI_Enable(SPI3);
+
+  while(count > 0){
+    LL_SPI_TransmitData8(SPI3, *tx_data++);
+    while(LL_SPI_IsActiveFlag_TXE(SPI3) == RESET);
+    while(LL_SPI_IsActiveFlag_RXNE(SPI3) == RESET);
+    *rx_data++ = LL_SPI_ReceiveData8(SPI3);
+    count--;
+  }
+
+  LL_GPIO_SetOutputPin(mpu_cs_GPIO_Port, mpu_cs_Pin);
+  
+}
+
 /**
  * @brief Write byte to mpu-6500
  * @param reg set register
@@ -63,7 +109,7 @@ void MPU6500_WriteByte(uint8_t reg, uint8_t val)
   tx_data[0] = reg & 0x7F;
   tx_data[1] = val;
 
-  SPI3_Communication(tx_data, rx_data, 2, SELECT_MPU6500); 
+  SPI3_Communication(tx_data, rx_data, 2); 
 }
 
 /**
@@ -79,7 +125,7 @@ uint8_t MPU6500_ReadByte(uint8_t reg)
   tx_data[0] = reg | 0x80;
   tx_data[1] = 0x00;
 
-  SPI3_Communication(tx_data, rx_data, 2, SELECT_MPU6500); 
+  SPI3_Communication(tx_data, rx_data, 2); 
 
   return rx_data[1];
 }
@@ -91,6 +137,7 @@ uint8_t MPU6500_ReadByte(uint8_t reg)
 uint8_t MPU6500_Init(void)
 {
   uint8_t who_am_i = 0;
+  LL_mDelay(10);
   who_am_i = MPU6500_ReadByte(MPU6500_REG_WHO_AM_I);
   if(who_am_i != MPU6500_WHO_AM_I){
     LL_mDelay(10);
@@ -172,6 +219,9 @@ float MPU6500_GetGyroZ(void)
 
   gyro = (int16_t)( ((int16_t)MPU6500_ReadByte(MPU6500_REG_GYRO_ZOUT_H) << 8) | ((int16_t)MPU6500_ReadByte(MPU6500_REG_GYRO_ZOUT_L)) );
   omega = (float)( (gyro-mpu6500_gyro_z_offset) / MPU6500_GYRO_FACTOR);
+
+  // ノイズ除去
+  if(omega > -1.0f && omega < 1.0) omega = 0.0f;
   
   return omega;
 }
@@ -201,5 +251,3 @@ float MPU6500_GetAccelY(void)
   accel = (float)((data - mpu6500_accel_x_offset) / MPU6500_ACCEL_FACTOR );
   return accel;
 }
-
-#endif

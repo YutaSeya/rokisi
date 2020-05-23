@@ -76,7 +76,7 @@ void setSideSensorUILed(uint8_t light)
   uint8_t right = (light & 0x02) >> 1; 
 
   if(left == 1) LL_GPIO_ResetOutputPin(led_left_GPIO_Port, led_left_Pin);
-  else LL_GPIO_SetOutputPin(led_right_GPIO_Port, led_right_Pin);
+  else LL_GPIO_SetOutputPin(led_left_GPIO_Port, led_left_Pin);
 
   if(right == 1) LL_GPIO_ResetOutputPin(led_right_GPIO_Port, led_right_Pin);
   else LL_GPIO_SetOutputPin(led_right_GPIO_Port, led_right_Pin);

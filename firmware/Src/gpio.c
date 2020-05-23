@@ -51,22 +51,23 @@ void MX_GPIO_Init(void)
 
   /**/
   LL_GPIO_ResetOutputPin(GPIOC, ain2_Pin|ain1_Pin|bin1_Pin|bin2_Pin 
-                          |l3gd20_cs_Pin|mpu_cs_Pin|led1_Pin|led2_Pin 
-                          |led3_Pin|led4_Pin);
+                          |l3gd20_cs_Pin|mpu_cs_Pin|led_left_Pin|led1_Pin 
+                          |led2_Pin|led3_Pin|led4_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPIOB, led_right_Pin|enc_left_cs_Pin);
+  LL_GPIO_ResetOutputPin(GPIOA, led_right_Pin|fetb_Pin|fet_side_left_Pin|fled_blue_Pin 
+                          |fled_green_Pin|fled_red_Pin);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPIOA, led_left_Pin|fled_blue_Pin|fled_green_Pin|fled_red_Pin);
+  LL_GPIO_ResetOutputPin(GPIOB, feta_Pin|fet_side_right_Pin|enc_left_cs_Pin);
 
   /**/
   LL_GPIO_ResetOutputPin(enc_right_cs_GPIO_Port, enc_right_cs_Pin);
 
   /**/
   GPIO_InitStruct.Pin = ain2_Pin|ain1_Pin|bin1_Pin|bin2_Pin 
-                          |l3gd20_cs_Pin|mpu_cs_Pin|led1_Pin|led2_Pin 
-                          |led3_Pin|led4_Pin;
+                          |l3gd20_cs_Pin|mpu_cs_Pin|led_left_Pin|led1_Pin 
+                          |led2_Pin|led3_Pin|led4_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -74,7 +75,16 @@ void MX_GPIO_Init(void)
   LL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /**/
-  GPIO_InitStruct.Pin = led_right_Pin|enc_left_cs_Pin;
+  GPIO_InitStruct.Pin = led_right_Pin|fetb_Pin|fet_side_left_Pin|fled_blue_Pin 
+                          |fled_green_Pin|fled_red_Pin;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /**/
+  GPIO_InitStruct.Pin = feta_Pin|fet_side_right_Pin|enc_left_cs_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -86,14 +96,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /**/
-  GPIO_InitStruct.Pin = led_left_Pin|fled_blue_Pin|fled_green_Pin|fled_red_Pin;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /**/
   GPIO_InitStruct.Pin = enc_right_cs_Pin;

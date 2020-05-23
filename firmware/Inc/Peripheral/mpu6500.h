@@ -8,9 +8,10 @@
 #ifndef __MPU6500_H
 #define __MPU6500_H
 
-#include "imu.h"
+#include "spi.h"
 
-#if _USE_MPU6500
+void SPI3_Starat(void);
+void SPI3_Communication(uint8_t *tx_data, uint8_t *rx_data, uint8_t length);
 
 uint8_t MPU6500_Init(void);
 void MPU6500_StartCalibration(void);
@@ -19,7 +20,5 @@ uint8_t MPU6500_GetStatus(void);
 float MPU6500_GetGyroZ(void);
 float MPU6500_GetAccelX(void);
 float MPU6500_GetAccelY(void);
-
-#endif
 
 #endif /* __MPU6500_H */

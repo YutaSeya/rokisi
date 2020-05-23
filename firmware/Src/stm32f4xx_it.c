@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "sensor.h"
+#include "interrupt.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -207,7 +208,10 @@ void TIM5_IRQHandler(void)
 
   /* USER CODE END TIM5_IRQn 0 */
   /* USER CODE BEGIN TIM5_IRQn 1 */
-
+  if (LL_TIM_IsActiveFlag_UPDATE(TIM5) != RESET){
+    LL_TIM_ClearFlag_UPDATE(TIM5);
+    interrputProcess();
+  }
   /* USER CODE END TIM5_IRQn 1 */
 }
 
@@ -221,7 +225,7 @@ void DMA2_Stream0_IRQHandler(void)
   /* USER CODE END DMA2_Stream0_IRQn 0 */
   
   /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-  if( LL_DMA_IsActiveFlag_TC0(DMA2) == 1){
+  if(LL_DMA_IsActiveFlag_TC0(DMA2) != RESET){
 	  LL_DMA_ClearFlag_TC0(DMA2);
 	  ADC1_DMA2_TransferComplete_Callback();
   }

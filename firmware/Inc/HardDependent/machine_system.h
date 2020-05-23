@@ -10,5 +10,6 @@
 
 void machine_init(void);
 
+void test_case(void);
 
 #endif /* __MACHINE_SYSTEM_H */

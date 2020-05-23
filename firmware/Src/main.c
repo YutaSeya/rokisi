@@ -85,7 +85,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -117,23 +116,23 @@ int main(void)
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_SPI3_Init();
-  MX_ADC2_Init();
   MX_TIM4_Init();
   MX_TIM5_Init();
   MX_USART1_UART_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
   machine_init();
+  test_case();
   /* USER CODE END 2 */
- 
- 
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-
+    
     /* USER CODE BEGIN 3 */
+    
   }
   /* USER CODE END 3 */
 }
@@ -178,7 +177,6 @@ void SystemClock_Config(void)
   
   }
   LL_Init1msTick(160000000);
-  LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
   LL_SetSystemCoreClock(160000000);
 }
 

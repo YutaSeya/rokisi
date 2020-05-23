@@ -6,16 +6,30 @@
  */ 
 
 #include "sensor.h"
+#include "machine_io.h"
 
-///3.3f / 1024.0f * ( 10000.0f + 3300.0f ) / 1000.0f
-#define BATT_CONVERTION_CONST 0.04286132812f
+#include <stdio.h>
 
-#define ADC_CONVERT_DATA_BUFFR_SIZE		((uint32_t)12)
+#define NO_CONVERTION 0
+#define CONVERTION 1
+#define LEFT 2
+#define RIGHT 3
+#define CONVERTION_REDEAY 4
 
-uint16_t adcConvertData[ADC_CONVERT_DATA_BUFFR_SIZE];
+#define ADC_CONVERT_DATA_SIZE		((uint32_t)8)
+
+// local varaiable
+
+/// adc convertion data
+uint16_t adc_convert_data[ADC_CONVERT_DATA_SIZE];
+/// adc convertion left data
+uint16_t adc_convert_left[ADC_CONVERT_DATA_SIZE];
+/// adc convertion right data
+uint16_t adc_convert_right[ADC_CONVERT_DATA_SIZE];
 
 /// enable convertion : 1, disable convertion : 0
-uint8_t adc1_status = 0;
+uint8_t adc_status = 0;
+
 
 /**
  * @brief start ADC2
@@ -53,18 +67,16 @@ void ADC1_Start(void)
 /**
  * @brief start ADC1 DMA Convertion
  */
-void ADC1_StartConvertion(void)
+void ADC1_DMA2_StartConvertion(void)
 {
-  adc1_status = 1;
-
 	LL_DMA_DisableStream(DMA2,LL_DMA_STREAM_0);
 
 	LL_DMA_ConfigAddresses(DMA2, LL_DMA_STREAM_0,
 	                      LL_ADC_DMA_GetRegAddr(ADC1, LL_ADC_DMA_REG_REGULAR_DATA),
-	                      (uint32_t)&adcConvertData, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
+	                      (uint32_t)&adc_convert_data, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
 
 
-	LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_0, ADC_CONVERT_DATA_BUFFR_SIZE);
+	LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_0, ADC_CONVERT_DATA_SIZE);
 
 	LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
 
@@ -73,11 +85,28 @@ void ADC1_StartConvertion(void)
 }
 
 /**
- * @brief stop ADC1 DMA Convertion
+ * @brief start ADC1 Convertion
  */
-void ADC1_StopConvertion(void)
+void ADC_StartConvertion(void)
 {
-  adc1_status = 0;
+  adc_status = CONVERTION_REDEAY;
+}
+
+/**
+ * @brief stop ADC1 Convertion
+ */
+void ADC_StopConvertion(void)
+{
+  adc_status = NO_CONVERTION;
+}
+
+/**
+ * @brief perform sensor sensing
+ * @details
+ */
+void sensingLineSensor(void)
+{
+  /* you write something */
 }
 
 /**
@@ -85,16 +114,49 @@ void ADC1_StopConvertion(void)
  */
 void updateLineSensor(void)
 {
+  volatile uint16_t i = 0;
+  if(adc_status == LEFT){
+    // FETA、左のサイドセンサを点灯
+    LL_GPIO_ResetOutputPin(fet_side_left_GPIO_Port, fet_side_left_Pin);
+    LL_GPIO_ResetOutputPin(feta_GPIO_Port, feta_Pin);
+    // FETB、右のサイドセンサを点灯
+    LL_GPIO_SetOutputPin(fet_side_right_GPIO_Port, fet_side_right_Pin);
+    LL_GPIO_SetOutputPin(fetb_GPIO_Port, fetb_Pin);
+    // AD変換の処理時間をまつ
+    for(i = 0; i < 250; i++);
+    // 光らせたときのデータを取得する
+    for(i = 0; i < ADC_CONVERT_DATA_SIZE; i++){
+      adc_convert_left[i] = adc_convert_data[i];
+    }
+    adc_status = RIGHT;
+    ADC1_DMA2_StartConvertion();
+  } else if(adc_status == RIGHT){
+    // FETB、右のサイドセンサを消灯
+    LL_GPIO_ResetOutputPin(fet_side_right_GPIO_Port, fet_side_right_Pin);
+    LL_GPIO_ResetOutputPin(fetb_GPIO_Port, fetb_Pin);    
+    // 光らせたときのデータを取得する
+    for(i = 0; i < ADC_CONVERT_DATA_SIZE; i++){
+      adc_convert_right[i] = adc_convert_data[i];
+    }
+    // センサの情報をセンシングする
+    sensingLineSensor();
+    adc_status = CONVERTION_REDEAY;
+  }
+}
 
-  // user code begin
-
-  /* you write sensor sensing here
-    sensor data stored adcConvertData array and 
-    the order is STM32CubeMX settings ADC RANK. */
+/**
+ * @brief check ADC1 DMA Convertion
+ */
+void checkADCProcess(void)
+{
+  volatile int i;
   
-  // user code end
-  
-
+  if(adc_status == CONVERTION_REDEAY){
+    // AD変換の処理時間をまつ
+    for(i = 0; i < 500; i++);
+    adc_status = LEFT;
+    ADC1_DMA2_StartConvertion();
+  }
 }
 
 /**
@@ -109,8 +171,13 @@ void ADC1_DMA2_TransferComplete_Callback(void)
 	LL_ADC_ClearFlag_EOCS(ADC1);
   // update line sensor value
   updateLineSensor();
-  // When converting continuously
-  if(adc1_status == 1){
-    ADC1_StartConvertion();
-  }
+
+}
+
+/**
+ * @brief print adc show data
+ */
+void showADC(void)
+{
+  // you right printf and check adc_convert_left/right
 }
